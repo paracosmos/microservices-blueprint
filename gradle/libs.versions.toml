@@ -1,0 +1,69 @@
+# Version catalog is a central place for you to declare and version dependencies
+# https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
+# https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
+
+[versions]
+kotlin = "2.2.21"
+kotlinxDatetime = "0.6.2"
+kotlinxSerializationJSON = "1.8.1"
+kotlinxCoroutines = "1.10.2"
+springDependencyManagement = "1.1.7"
+springBootVersion = "3.5.0"
+springCloudVersion = "2025.0.0"
+resilience4j = "2.3.0"
+
+# ktlint = "12.1.0"
+
+[libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinxCoroutines" }
+
+spring-core = { module = "org.springframework:spring-core" }
+spring-context = { module = "org.springframework:spring-context" }
+spring-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "springBootVersion" }
+spring-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "springBootVersion" }
+spring-aop = { module = "org.springframework.boot:spring-boot-starter-aop", version.ref = "springBootVersion" }
+spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "springBootVersion" }
+spring-cache = { module = "org.springframework.boot:spring-boot-starter-cache", version.ref = "springBootVersion" }
+spring-redis-reactive = { module = "org.springframework.boot:spring-boot-starter-data-redis-reactive", version.ref = "springBootVersion" }
+#
+spring-eureka-server = { module = "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server", version.ref = "springCloudVersion" }
+spring-eureka-client = { module = "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client", version.ref = "springCloudVersion" }
+
+# Libraries can be bundled together for easier import
+[bundles]
+kotlinxEcosystem = [
+    "kotlinx-datetime",
+    "kotlinx-serialization",
+    "kotlinx-coroutines",
+    "kotlin-reflect",
+    "kotlinx-coroutines-reactor",
+    "kotlinx-coroutines-slf4j"
+]
+springFramework = [
+    "spring-core",
+    "spring-context",
+    "spring-webflux",
+    "spring-validation",
+    "spring-aop",
+    "spring-actuator",
+    "spring-cache",
+]
+
+[plugins]
+kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+
+kotlin-noarg = { id = "org.jetbrains.kotlin.plugin.noarg", version.ref = "kotlin" }
+kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+#ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+
+spring-boot = { id = "org.springframework.boot", version.ref = "springBootVersion" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }

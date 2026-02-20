@@ -1,0 +1,84 @@
+spring:
+  profiles:
+    active: ${ACTIVE:default}
+
+  application:
+    name: user
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+      port: 14519
+      timeout: 60s
+
+  datasource:
+    url: ${USER_DB_URL}
+    username: ${USER_DB_USERNAME}
+    password: ${USER_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+
+  flyway:
+    default-schema: public
+    schemas: public
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration/user/${DB}
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_SMTP_EMAIL}
+    password: ${GMAIL_APP_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+webpush:
+  vapid:
+    public-key: ${VAPID_PUBLIC_KEY}
+    private-key: ${VAPID_PRIVATE_KEY}
+    subject: "mailto:admin@matoo.com"
+
+server:
+  port: 8082
+
+email:
+  smtp:
+    enabled : true
+    from: ${GMAIL_SMTP_EMAIL}
+  ses:
+    enabled : true
+    from: ${SES_FROM}
+
+aws:
+  ses:
+    access-key: ${AWS_SES_ACCESS_KEY}
+    secret-key: ${AWS_SES_SECRET_KEY}
+    region: ap-northeast-2
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka

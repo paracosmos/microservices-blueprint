@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>댓글 알림</title>
+</head>
+<body style="font-family: Arial, sans-serif;">
+<h2>댓글이 달렸어요</h2>
+
+<p>
+    <b th:text="${receiverName}">수신자</b>님, 회원님의 글에 댓글이 달렸습니다.
+</p>
+
+<hr />
+
+<p><b>게시글</b>: <span th:text="${postTitle}">제목</span></p>
+<p><b>댓글 작성자</b>: <span th:text="${commenterName}">아무개</span></p>
+
+<div style="margin-top:12px; padding:12px; background:#f6f6f6;">
+    <div th:text="${commentContent}">댓글 내용</div>
+</div>
+
+<p style="margin-top:16px;">
+    <a th:href="${postUrl}" target="_blank">게시글로 이동</a>
+</p>
+
+<p style="margin-top:24px; color:#888; font-size:12px;">
+    이 메일은 발신전용입니다.
+</p>
+</body>
+
+</html>

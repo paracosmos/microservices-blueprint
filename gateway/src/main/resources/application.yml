@@ -1,0 +1,66 @@
+spring:
+  profiles:
+    active: ${ACTIVE:default}
+
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: block-user-internal
+              uri: no://op
+              predicates:
+                - name: Path
+                  args:
+                    pattern: ${router.prefix}/user/internal/**
+              filters:
+                - name: SetStatus
+                  args:
+                    status: 404
+
+            - id: auth
+              predicates:
+                - name: Path
+                  args:
+                    pattern: ${router.prefix}/auth/**
+              uri: lb://auth
+
+            - id: user
+              predicates:
+                - name: Path
+                  args:
+                    pattern: ${router.prefix}/user/**
+              uri: lb://user
+
+            - id: board
+              predicates:
+                - name: Path
+                  args:
+                    pattern: ${router.prefix}/board/**
+              uri: lb://board
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+jwt:
+  access:
+    public-key: ${JWT_ACCESS_PUBLIC_KEY}
+
+cors:
+  origins: http://localhost:3000
+
+router:
+  prefix: /api/v1
+  whitelist:
+    - /api/v1/auth/**
+    - /api/v1/board/public/**
