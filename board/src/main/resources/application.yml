@@ -29,6 +29,7 @@ spring:
     locations: classpath:db/migration/board/${DB}
 
   jpa:
+    open-in-view: false
     show-sql: true
     properties:
       hibernate:

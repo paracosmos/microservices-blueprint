@@ -29,6 +29,7 @@ spring:
     locations: classpath:db/migration/user/${DB}
 
   jpa:
+    open-in-view: false
     show-sql: true
     properties:
       hibernate:

@@ -11,6 +11,7 @@ import java.time.Instant
 
 interface UserJpaRepository : JpaRepository<UserEntity, IdType> {
 
+    @EntityGraph(attributePaths = ["providers"])
     fun findByEmail(email: String): UserEntity?
 
     @EntityGraph(attributePaths = ["providers"])
