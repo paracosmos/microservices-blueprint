@@ -63,6 +63,8 @@ kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotl
 kotlin-noarg = { id = "org.jetbrains.kotlin.plugin.noarg", version.ref = "kotlin" }
 kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
 kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+# kapt ships with the Kotlin plugin (already on the classpath), so it is declared without a version.
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt" }
 #ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 
 spring-boot = { id = "org.springframework.boot", version.ref = "springBootVersion" }

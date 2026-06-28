@@ -7,8 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.kotlin.noarg)
     alias(libs.plugins.kotlin.jpa)
-    // kapt ships with the Kotlin plugin (already on classpath), so apply without a version.
-    kotlin("kapt")
+    alias(libs.plugins.kotlin.kapt)
 }
 
 description = "board"
