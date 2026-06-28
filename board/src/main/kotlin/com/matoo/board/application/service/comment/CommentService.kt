@@ -2,7 +2,6 @@ package com.matoo.board.application.service.comment
 
 import com.matoo.board.application.port.`in`.CommentUseCase
 import com.matoo.board.application.port.out.CommentCommandPort
-import com.matoo.board.application.port.out.CommentQueryPort
 import com.matoo.board.application.port.out.PostQueryPort
 import com.matoo.board.domain.model.Comment
 import com.matoo.core.event.EventPublisher
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service
 @Service
 class CommentService(
     private val commentCommandPort: CommentCommandPort,
-    private val commentQueryPort: CommentQueryPort,
     @Qualifier("postRepositoryAdapter")
     private val repositoryPort: PostQueryPort,
     @Qualifier("redisEventPublisher")
@@ -47,9 +45,5 @@ class CommentService(
             )
         )
         return saved
-    }
-
-    override suspend fun getByPost(postId: String): List<Comment> {
-        return withContext(Dispatchers.IO) { commentQueryPort.findByPostId(postId) }
     }
 }

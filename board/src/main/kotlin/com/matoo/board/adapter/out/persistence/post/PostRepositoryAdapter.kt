@@ -26,10 +26,6 @@ class PostRepositoryAdapter(
         return postJpaRepository.findByIdOrNull(id)?.let { postMapper.toDomain(it) }
     }
 
-    override fun findAll(): List<Post> {
-        return postJpaRepository.findAll().map { postMapper.toDomain(it) }
-    }
-
     @Transactional
     override fun deleteById(id: IdType) {
         postJpaRepository.softDeleteById(id)

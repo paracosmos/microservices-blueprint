@@ -15,6 +15,7 @@ import com.matoo.core.util.CoreUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -28,6 +29,8 @@ class FileService(
     private val fileCommandPort: FileCommandPort,
     private val fileQueryPort: FileQueryPort
 ) : FileUseCase {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val storage = storagePort.provider()
 
@@ -95,10 +98,12 @@ class FileService(
         userId: String, fileId: String, hard: Boolean?
     ): Boolean {
         val file = withContext(Dispatchers.IO) { fileQueryPort.findById(fileId) } ?: return false
-        // DB 행을 먼저 soft-delete 한 뒤 스토리지를 지운다. 스토리지 삭제가 실패해도
-        // 행은 이미 제거되어 깨진 링크를 서빙하지 않는다(고아 객체는 추후 정리 가능).
+        // DB 행을 먼저 soft-delete 해 깨진 링크 노출을 막는다.
         withContext(Dispatchers.IO) { fileCommandPort.deleteById(fileId) }
-        storagePort.delete(file.storageKey)
+        // 스토리지 삭제는 best-effort: 실패해도 요청을 실패시키지 않고(이미 행은 삭제됨, 재시도 시 false 만 반환)
+        // 고아 객체로 로그만 남겨 별도 정리(GC) 대상으로 둔다.
+        runCatching { storagePort.delete(file.storageKey) }
+            .onFailure { logger.warn("orphaned storage object after delete: key={}", file.storageKey, it) }
         return true
     }
 

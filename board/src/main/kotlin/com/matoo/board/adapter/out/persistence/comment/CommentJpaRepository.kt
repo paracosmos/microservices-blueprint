@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query
 import java.time.Instant
 
 interface CommentJpaRepository : JpaRepository<CommentEntity, IdType>{
-    fun findAllByPostIdOrderByCreatedAtAsc(postId: IdType): List<CommentEntity>
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(

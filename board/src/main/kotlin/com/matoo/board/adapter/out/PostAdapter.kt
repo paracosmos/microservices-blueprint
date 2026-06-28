@@ -25,8 +25,4 @@ class PostAdapter(
                 redisCommandPort.save(it)
             }
     }
-
-    override fun findAll(): List<Post> {
-        return repositoryPort.findAll()
-    }
 }

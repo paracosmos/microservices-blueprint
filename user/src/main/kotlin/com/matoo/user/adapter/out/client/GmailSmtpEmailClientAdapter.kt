@@ -1,9 +1,11 @@
 package com.matoo.user.adapter.out.client
 
+import com.matoo.core.support.exception.requireStatus
 import com.matoo.user.application.port.out.EmailSenderPort
 import com.matoo.user.domain.model.notification.EmailMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.springframework.http.HttpStatus
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 
@@ -13,8 +15,9 @@ class GmailSmtpEmailClientAdapter(
 ) : EmailSenderPort {
 
     override suspend fun send(message: EmailMessage) {
-        require(message.to.isNotBlank()) { "EmailMessage.to is blank" }
-        require(message.subject.isNotBlank()) { "EmailMessage.subject is blank" }
+        // 입력 검증 실패는 400으로 매핑(전역 IllegalArgumentException 핸들러로 5xx 를 가리지 않도록 타입을 좁힌다).
+        requireStatus(message.to.isNotBlank(), HttpStatus.BAD_REQUEST) { "EmailMessage.to is blank" }
+        requireStatus(message.subject.isNotBlank(), HttpStatus.BAD_REQUEST) { "EmailMessage.subject is blank" }
 
         withContext(Dispatchers.IO) {
             val mime = mailSender.createMimeMessage()

@@ -15,8 +15,8 @@ class BoardQueryService(
 ) : BoardQueryUseCase {
 
     // 리스트: QueryDSL 집계 쿼리(게시글 + 댓글 수)
-    override suspend fun getPostList(): List<PostSummary> =
-        withContext(Dispatchers.IO) { postReadPort.findSummaries() }
+    override suspend fun getPostList(limit: Int, offset: Int): List<PostSummary> =
+        withContext(Dispatchers.IO) { postReadPort.findSummaries(limit, offset) }
 
     // 상세: 게시글 + 댓글 projection (어댑터의 readOnly 트랜잭션 안에서 2개 쿼리 실행)
     override suspend fun getPostWithComments(postId: String): PostWithComments =

@@ -24,10 +24,6 @@ class PostLocalCacheAdapter : PostQueryPort, PostCommandPort {
         return data
     }
 
-    override fun findAll(): List<Post> {
-        return emptyList()
-    }
-
     @CacheEvict(key = "#id")
     override fun deleteById(id: IdType) {
     }

@@ -34,10 +34,6 @@ class PostRedisAdapter(
         postRedisTemplate.delete("post:$id")
     }
 
-    override fun findAll(): List<Post> {
-        return emptyList()
-    }
-
     fun deleteAll() {
         val keys = postRedisTemplate.keys("post::*")
         if (keys.isNotEmpty()) {

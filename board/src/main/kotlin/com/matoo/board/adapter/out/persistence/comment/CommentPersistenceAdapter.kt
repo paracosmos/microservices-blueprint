@@ -27,12 +27,6 @@ class CommentPersistenceAdapter(
         return commentJpaRepository.findByIdOrNull(id)?.let { return commentMapper.toDomain(it) }
     }
 
-    override fun findByPostId(postId: IdType): List<Comment> {
-        return commentJpaRepository
-            .findAllByPostIdOrderByCreatedAtAsc(postId)
-            .map(commentMapper::toDomain)
-    }
-
     @Transactional
     override fun deleteById(id: IdType) {
         commentJpaRepository.softDeleteById(id)

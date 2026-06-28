@@ -14,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional
 
 /**
  * 읽기 전용 QueryDSL 어댑터.
- * 엔티티의 @SQLRestriction("deleted_at IS NULL") 가 JPQL 에도 적용되어
- * soft-delete 된 게시글/댓글은 자동 제외된다(댓글 수 집계 포함).
+ * soft-delete 제외는 @SQLRestriction 전파에 의존하지 않고 deleted_at IS NULL 술어를
+ * 명시적으로 건다(특히 매핑되지 않은 ad-hoc join 의 comment 에는 @SQLRestriction 적용이 보장되지 않음).
  */
 @Component
 @Transactional(readOnly = true)
@@ -28,23 +28,29 @@ class PostQueryDslAdapter(
 
     /**
      * 리스트: post LEFT JOIN comment 후 GROUP BY 로 댓글 수를 한 번의 쿼리로 집계(N+1 없음).
+     * 페이지네이션(limit/offset) 필수 — 공개 엔드포인트에서 전체 테이블 적재를 막는다.
+     * 삭제된 댓글은 ON 절의 deleted_at IS NULL 로 제외(LEFT JOIN 유지 → 댓글 없는 글도 count 0 으로 포함).
      */
-    override fun findSummaries(): List<PostSummary> =
+    override fun findSummaries(limit: Int, offset: Int): List<PostSummary> =
         queryFactory
             .select(
                 Projections.constructor(
                     PostSummary::class.java,
                     post.postId,
-                    post.userId,
                     post.title,
                     post.createdAt,
                     comment.commentId.count()
                 )
             )
             .from(post)
-            .leftJoin(comment).on(comment.postId.eq(post.postId))
-            .groupBy(post.postId, post.userId, post.title, post.createdAt)
-            .orderBy(post.createdAt.desc())
+            .leftJoin(comment).on(
+                comment.postId.eq(post.postId).and(comment.deletedAt.isNull)
+            )
+            .where(post.deletedAt.isNull)
+            .groupBy(post.postId, post.title, post.createdAt)
+            .orderBy(post.createdAt.desc(), post.postId.desc())
+            .offset(offset.toLong())
+            .limit(limit.toLong())
             .fetch()
 
     /**
@@ -65,7 +71,7 @@ class PostQueryDslAdapter(
                 )
             )
             .from(post)
-            .where(post.postId.eq(postId))
+            .where(post.postId.eq(postId), post.deletedAt.isNull)
             .fetchOne()
             ?: return null
 
@@ -82,8 +88,8 @@ class PostQueryDslAdapter(
                 )
             )
             .from(comment)
-            .where(comment.postId.eq(postId))
-            .orderBy(comment.createdAt.asc())
+            .where(comment.postId.eq(postId), comment.deletedAt.isNull)
+            .orderBy(comment.createdAt.asc(), comment.commentId.asc())
             .fetch()
 
         return PostWithComments(detail, comments)

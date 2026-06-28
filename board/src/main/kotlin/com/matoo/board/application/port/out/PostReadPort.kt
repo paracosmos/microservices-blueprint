@@ -10,6 +10,6 @@ import com.matoo.core.constant.IdType
  * - 상세: 게시글 + 댓글을 projection 으로 조회.
  */
 interface PostReadPort {
-    fun findSummaries(): List<PostSummary>
+    fun findSummaries(limit: Int, offset: Int): List<PostSummary>
     fun findDetail(postId: IdType): PostWithComments?
 }
