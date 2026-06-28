@@ -70,4 +70,14 @@ class GlobalExceptionHandler(private val objectMapper: ObjectMapper) {
         val status = e.statusCode
         return ProblemDetail.forStatusAndDetail(status, e.reason ?: status.toString())
     }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ProblemDetail> {
+        // require(...) 등 입력 검증 실패는 클라이언트 잘못이므로 500이 아닌 400으로 매핑한다.
+        val problemDetail = ProblemDetail.forStatusAndDetail(
+            HttpStatus.BAD_REQUEST,
+            e.message ?: HttpStatus.BAD_REQUEST.reasonPhrase
+        )
+        return ResponseEntity.badRequest().body(problemDetail)
+    }
 }

@@ -5,7 +5,6 @@ import com.matoo.board.domain.model.Post
 import com.matoo.core.constant.IdType
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.CacheManager
-import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 
@@ -31,20 +30,5 @@ class PostCacheAdapter(
         if (keys.isNotEmpty()) {
             postRedisTemplate.delete(keys)
         }
-    }
-
-    @Profile("local")
-    fun test(id: IdType) {
-        val key = "$cacheName:$id"
-
-        val beforeCache = cacheManager.getCache(cacheName)?.get(id)?.get()
-        val beforeRedis = postRedisTemplate.opsForValue().get(key)
-        println("Before eviction - Cache: $beforeCache, Redis: $beforeRedis")
-
-        evict(key)
-
-        val afterCache = cacheManager.getCache(cacheName)?.get(id)?.get()
-        val afterRedis = postRedisTemplate.opsForValue().get(key)
-        println("After eviction - Cache: $afterCache, Redis: $afterRedis")
     }
 }

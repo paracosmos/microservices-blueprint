@@ -11,6 +11,8 @@ import com.matoo.user.application.port.`in`.UserUseCase
 import com.matoo.user.application.port.out.UserCommandPort
 import com.matoo.user.application.port.out.UserQueryPort
 import com.matoo.user.domain.model.user.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -25,7 +27,7 @@ class UserApplicationService(
 //    @PersistenceContext private val em: EntityManager
 ) : UserUseCase {
 
-    override suspend fun signupLocal(command: LocalSignupCommand): Boolean {
+    override suspend fun signupLocal(command: LocalSignupCommand): Boolean = withContext(Dispatchers.IO) {
         val user = userQueryPort.findByEmail(command.email)
             ?: User.create(
                 userId = CoreUtil.generateId(),
@@ -36,10 +38,10 @@ class UserApplicationService(
             encodedPassword = passwordEncoder.encode(command.password)
         )
         saveUser(user)
-        return isNew
+        isNew
     }
 
-    override suspend fun signinLocal(command: LocalSigninCommand): SigninQuery {
+    override suspend fun signinLocal(command: LocalSigninCommand): SigninQuery = withContext(Dispatchers.IO) {
         val user = userQueryPort.findByEmail(command.email)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         try {
@@ -50,13 +52,13 @@ class UserApplicationService(
         } catch (_: IllegalArgumentException) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         }
-        return SigninQuery(
+        SigninQuery(
             userId = user.userId,
             email = user.email
         )
     }
 
-    override suspend fun signinOAuth(command: OAuthSigninCommand): SigninQuery {
+    override suspend fun signinOAuth(command: OAuthSigninCommand): SigninQuery = withContext(Dispatchers.IO) {
         val user = userQueryPort.findByEmail(command.email)
             ?: User.create(
                 userId = CoreUtil.generateId(),
@@ -72,24 +74,26 @@ class UserApplicationService(
         if (touched) {
             saveUser(user)
         }
-        return SigninQuery(
+        SigninQuery(
             userId = user.userId,
             email = user.email
         )
     }
 
     override suspend fun signoff(userId: IdType) {
-        userCommandPort.deleteById(userId)
+        withContext(Dispatchers.IO) { userCommandPort.deleteById(userId) }
     }
 
     override suspend fun restore(email: String) {
-        userQueryPort
-            .existsByEmail(email)
-            .takeIf { it }
-            ?.run { userQueryPort.restoreByEmail(email) }
+        withContext(Dispatchers.IO) {
+            userQueryPort
+                .existsByEmail(email)
+                .takeIf { it }
+                ?.run { userQueryPort.restoreByEmail(email) }
+        }
     }
 
-    private suspend fun saveUser(user: User) {
+    private fun saveUser(user: User) {
         try {
             userCommandPort.save(user)
         } catch (e: DataIntegrityViolationException) {

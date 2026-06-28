@@ -12,7 +12,8 @@ com.matoo.board
 │   │       └─ dto
 │   │           ├─ CommentCreateRequest.kt
 │   │           ├─ PostCommentResponse.kt
-│   │           └─ PostCreateRequest.kt
+│   │           ├─ PostCreateRequest.kt
+│   │           └─ PostSummaryResponse.kt
 │   │
 │   └─ out
 │       ├─ PostAdapter.kt
@@ -45,6 +46,7 @@ com.matoo.board
 │       │       ├─ PostEntity.kt
 │       │       ├─ PostJpaRepository.kt
 │       │       ├─ PostMapper.kt
+│       │       ├─ PostQueryDslAdapter.kt
 │       │       └─ PostRepositoryAdapter.kt
 │       └─ storage
 │           ├─ S3StorageAdapter.kt
@@ -53,6 +55,8 @@ com.matoo.board
 ├─ application
 │   ├─ model
 │   │   ├─ FileInfo.kt
+│   │   ├─ PostSummary.kt
+│   │   ├─ PostWithComments.kt
 │   │   ├─ PresignCommand.kt
 │   │   ├─ PresignResult.kt
 │   │   ├─ StoredFile.kt
@@ -69,6 +73,7 @@ com.matoo.board
 │   │       ├─ PostCachePort.kt
 │   │       ├─ PostCommandPort.kt
 │   │       ├─ PostQueryPort.kt
+│   │       ├─ PostReadPort.kt
 │   │       └─ file
 │   │           ├─ FileCommandPort.kt
 │   │           ├─ FileQueryPort.kt
@@ -97,7 +102,8 @@ com.matoo.board
 │   ├─ CacheConfig.kt
 │   └─ RedisConfig.kt
 ├─ config
-│   └─ BoardModuleConfig.kt
+│   ├─ BoardModuleConfig.kt
+│   └─ QueryDslConfig.kt
 └─ storage
     ├─ S3ClientConfig.kt
     ├─ StorageConfig.kt

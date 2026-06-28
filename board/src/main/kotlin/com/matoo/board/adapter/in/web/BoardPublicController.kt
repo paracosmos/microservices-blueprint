@@ -1,6 +1,7 @@
 package com.matoo.board.adapter.`in`.web
 
 import com.matoo.board.adapter.`in`.web.dto.PostCommentResponse
+import com.matoo.board.adapter.`in`.web.dto.PostSummaryResponse
 import com.matoo.board.application.port.`in`.BoardQueryUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -15,11 +16,19 @@ import org.springframework.web.bind.annotation.RestController
 class BoardPublicController(
     private val boardQueryUseCase: BoardQueryUseCase,
 ) {
+    // 리스트: 게시글 + 댓글 수 (댓글 본문 제외)
+    @GetMapping
+    suspend fun getPosts(): ResponseEntity<List<PostSummaryResponse>> {
+        val body = boardQueryUseCase.getPostList().map(PostSummaryResponse::from)
+        return ResponseEntity.ok(body)
+    }
+
+    // 상세: 게시글 + 댓글
     @GetMapping("/{postId}")
     suspend fun getPost(
         @PathVariable postId: String
     ): ResponseEntity<PostCommentResponse> {
-        val body = boardQueryUseCase.getPostWithComments(postId)
-        return ResponseEntity.ok(body)
+        val result = boardQueryUseCase.getPostWithComments(postId)
+        return ResponseEntity.ok(PostCommentResponse(result.post, result.comments))
     }
 }

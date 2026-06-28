@@ -13,8 +13,8 @@ class GmailSmtpEmailClientAdapter(
 ) : EmailSenderPort {
 
     override suspend fun send(message: EmailMessage) {
-//        require(message.to.isNotBlank()) { "EmailMessage.to is blank" }
-//        require(message.subject.isNotBlank()) { "EmailMessage.subject is blank" }
+        require(message.to.isNotBlank()) { "EmailMessage.to is blank" }
+        require(message.subject.isNotBlank()) { "EmailMessage.subject is blank" }
 
         withContext(Dispatchers.IO) {
             val mime = mailSender.createMimeMessage()

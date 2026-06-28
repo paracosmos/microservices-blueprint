@@ -17,10 +17,6 @@ class CorsConfig(
     @param:Value("\${cors.origins}") private val corsOrigins: Array<String>
 ) : WebFluxConfigurer {
 
-    init {
-        println(corsOrigins)
-    }
-
     val allowedMethods = arrayOf(
         HttpMethod.GET.name(),
         HttpMethod.POST.name(),

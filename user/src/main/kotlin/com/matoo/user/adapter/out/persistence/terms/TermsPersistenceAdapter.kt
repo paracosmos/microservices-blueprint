@@ -16,12 +16,11 @@ class TermsPersistenceAdapter(
     override fun findAllByType(type: TermType): List<Terms> =
         termsJpaRepository.findAllByTypeOrderByCreatedAtDesc(type).map(TermsMapper::toDomain)
 
-    override fun findLatestByTypes(types: List<TermType>): Map<TermType, Terms> {
-        // type별 최신 1개씩만 필요하면, DB마다 최적 쿼리가 다름.
-        // 여기서는 표준적으로 "type별 최신을 루프"로 명확하게 처리(규모 작으면 충분).
-        return types.associateWith { t ->
-            termsJpaRepository.findFirstByTypeOrderByCreatedAtDesc(t)?.let(TermsMapper::toDomain)
-        }.filterValues { it != null }
-            .mapValues { it.value!! }
-    }
+    override fun findLatestByTypes(types: List<TermType>): Map<TermType, Terms> =
+        // TermType은 작은 enum이라 type별 최신 1행씩만 조회하는 게 가장 효율적이다.
+        // (IN 쿼리로 전체 이력을 메모리에 적재한 뒤 버리는 방식은 버전이 쌓일수록 비효율.)
+        types.distinct().mapNotNull { type ->
+            termsJpaRepository.findFirstByTypeOrderByCreatedAtDesc(type)
+                ?.let { type to TermsMapper.toDomain(it) }
+        }.toMap()
 }

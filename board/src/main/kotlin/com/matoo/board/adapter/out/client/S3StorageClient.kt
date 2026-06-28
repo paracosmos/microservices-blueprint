@@ -32,13 +32,15 @@ class S3StorageClient(
         inputStream: InputStream,
         contentType: String
     ) {
-        val bytes = withContext(Dispatchers.IO) { inputStream.readAllBytes() }
         val request = PutObjectRequest.builder()
             .bucket(bucketName)
             .key(key)
             .contentType(contentType)
             .build()
-        s3Client.putObject(request, RequestBody.fromBytes(bytes))
+        withContext(Dispatchers.IO) {
+            val bytes = inputStream.readAllBytes()
+            s3Client.putObject(request, RequestBody.fromBytes(bytes))
+        }
     }
 
     suspend fun putObjectAsync(
@@ -71,7 +73,7 @@ class S3StorageClient(
             .bucket(bucketName)
             .key(key)
             .build()
-        s3Client.deleteObject(request)
+        withContext(Dispatchers.IO) { s3Client.deleteObject(request) }
     }
 
     suspend fun headObjectExists(key: String): Boolean {
@@ -80,11 +82,13 @@ class S3StorageClient(
             .key(key)
             .build()
 
-        return try {
-            s3Client.headObject(request)
-            true
-        } catch (e: S3Exception) {
-            if (e.statusCode() == 404) false else throw e
+        return withContext(Dispatchers.IO) {
+            try {
+                s3Client.headObject(request)
+                true
+            } catch (e: S3Exception) {
+                if (e.statusCode() == 404) false else throw e
+            }
         }
     }
 

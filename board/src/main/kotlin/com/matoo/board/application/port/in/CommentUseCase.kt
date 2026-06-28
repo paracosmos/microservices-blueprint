@@ -4,5 +4,5 @@ import com.matoo.board.domain.model.Comment
 
 interface CommentUseCase {
     suspend fun addComment(postId: String, userId: String, content: String): Comment
-    fun getByPost(postId: String): List<Comment>
+    suspend fun getByPost(postId: String): List<Comment>
 }

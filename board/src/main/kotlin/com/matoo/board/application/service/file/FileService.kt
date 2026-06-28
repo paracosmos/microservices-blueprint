@@ -12,7 +12,9 @@ import com.matoo.board.domain.model.File
 import com.matoo.board.domain.model.FileStatus
 import com.matoo.core.support.exception.requireStatus
 import com.matoo.core.util.CoreUtil
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.withContext
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -49,18 +51,20 @@ class FileService(
             inputStream = bytes.inputStream(),
             contentType = mimeType
         )
-        fileCommandPort.save(
-            File(
-                fileId = fileId,
-                userId = userId,
-                storageKey = stored.key,
-                storage = storage,
-                fileName = fileName,
-                mimeType = mimeType,
-                fileSize = bytes.size.toLong(),
-                status = FileStatus.ACTIVE
+        withContext(Dispatchers.IO) {
+            fileCommandPort.save(
+                File(
+                    fileId = fileId,
+                    userId = userId,
+                    storageKey = stored.key,
+                    storage = storage,
+                    fileName = fileName,
+                    mimeType = mimeType,
+                    fileSize = bytes.size.toLong(),
+                    status = FileStatus.ACTIVE
+                )
             )
-        )
+        }
         return FileInfo(
             fileId = fileId,
             userId = userId,
@@ -90,9 +94,11 @@ class FileService(
     override suspend fun delete(
         userId: String, fileId: String, hard: Boolean?
     ): Boolean {
-        val file = fileQueryPort.findById(fileId) ?: return false
+        val file = withContext(Dispatchers.IO) { fileQueryPort.findById(fileId) } ?: return false
+        // DB 행을 먼저 soft-delete 한 뒤 스토리지를 지운다. 스토리지 삭제가 실패해도
+        // 행은 이미 제거되어 깨진 링크를 서빙하지 않는다(고아 객체는 추후 정리 가능).
+        withContext(Dispatchers.IO) { fileCommandPort.deleteById(fileId) }
         storagePort.delete(file.storageKey)
-        fileCommandPort.deleteById(fileId)
         return true
     }
 
@@ -104,17 +110,19 @@ class FileService(
         val presigned = storagePort.signUpload(
             key = key, contentType = command.contentType, size = command.size
         )
-        fileCommandPort.save(
-            File(
-                fileId = fileId,
-                userId = userId,
-                storageKey = presigned.key,
-                storage = storage,
-                fileName = command.fileName,
-                mimeType = command.contentType,
-                fileSize = command.size,
+        withContext(Dispatchers.IO) {
+            fileCommandPort.save(
+                File(
+                    fileId = fileId,
+                    userId = userId,
+                    storageKey = presigned.key,
+                    storage = storage,
+                    fileName = command.fileName,
+                    mimeType = command.contentType,
+                    fileSize = command.size,
+                )
             )
-        )
+        }
         return PresignResult(
             uploadUrl = presigned.uploadUrl, fileId = fileId, expiresInSec = presigned.expiresInSec, url = presigned.url
         )
@@ -123,7 +131,7 @@ class FileService(
     override suspend fun presignCallback(
         userId: String, fileId: String
     ): FileInfo? {
-        val file = fileQueryPort.findById(fileId) ?: return null
+        val file = withContext(Dispatchers.IO) { fileQueryPort.findById(fileId) } ?: return null
         if (file.status == FileStatus.ACTIVE) return file.toFileInfo()
 
         if (file.userId != null && file.userId != userId) return null
@@ -131,7 +139,7 @@ class FileService(
             return null
         }
 
-        fileCommandPort.markUploaded(fileId, userId)
+        withContext(Dispatchers.IO) { fileCommandPort.markUploaded(fileId, userId) }
         return file.toFileInfo()
     }
 

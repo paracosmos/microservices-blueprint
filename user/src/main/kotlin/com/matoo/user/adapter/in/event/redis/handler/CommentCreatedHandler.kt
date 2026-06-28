@@ -1,15 +1,16 @@
 package com.matoo.user.adapter.`in`.event.redis.handler
 
 import com.matoo.core.event.EventHandler
-import com.matoo.core.event.TopicHandler
 import com.matoo.core.event.dto.CommentCreatedEvent
-import com.matoo.core.event.dto.UserEventTopic
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
 class CommentCreatedHandler() : EventHandler<CommentCreatedEvent> {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     override suspend fun handle(event: CommentCreatedEvent): Boolean {
-        println("handle $event")
+        logger.debug("handle {}", event)
         return true
     }
 }

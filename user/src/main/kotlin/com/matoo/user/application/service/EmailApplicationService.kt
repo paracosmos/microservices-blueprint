@@ -1,8 +1,8 @@
 package com.matoo.user.application.service
 
-import com.matoo.user.adapter.out.template.ThymeleafTemplateRenderer
 import com.matoo.user.application.port.`in`.EmailUseCase
 import com.matoo.user.application.port.out.EmailSenderPort
+import com.matoo.user.application.port.out.TemplateRendererPort
 import com.matoo.user.domain.model.notification.EmailMessage
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
@@ -13,7 +13,7 @@ class EmailApplicationService(
     private val smtpEmailSender: EmailSenderPort,
 //    @Qualifier("sesEmailSender")
 //    private val sesEmailSender: EmailSenderPort,
-    private val templateRenderer: ThymeleafTemplateRenderer
+    private val templateRenderer: TemplateRendererPort
 ): EmailUseCase {
 
     override suspend fun send(message: EmailMessage) {

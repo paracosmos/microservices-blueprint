@@ -14,16 +14,13 @@ import org.springframework.stereotype.Component
 @CacheConfig(cacheNames = ["post"])
 class PostLocalCacheAdapter : PostQueryPort, PostCommandPort {
 
-    // @Cacheable(cacheNames = ["post"], key = "#id")
     @Cacheable(key = "#id")
     override fun findById(id: IdType): Post? {
-        println("postLocalCacheAdapter::findById id=$id")
         return null
     }
 
     @CachePut(key = "#data.postId")
     override fun save(data: Post): Post {
-        println("postLocalCacheAdapter::save $data")
         return data
     }
 
@@ -33,7 +30,6 @@ class PostLocalCacheAdapter : PostQueryPort, PostCommandPort {
 
     @CacheEvict(key = "#id")
     override fun deleteById(id: IdType) {
-        println("postLocalCacheAdapter::deleteById id=$id")
     }
 
     @CacheEvict(
@@ -41,6 +37,5 @@ class PostLocalCacheAdapter : PostQueryPort, PostCommandPort {
         allEntries = true
     )
     fun deleteAll() {
-        println("postLocalCacheAdapter::deleteAll")
     }
 }

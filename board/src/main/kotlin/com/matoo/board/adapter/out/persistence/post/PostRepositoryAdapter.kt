@@ -23,9 +23,7 @@ class PostRepositoryAdapter(
     }
 
     override fun findById(id: IdType): Post? {
-        val post = postJpaRepository.findByIdOrNull(id)?.let { postMapper.toDomain(it) }
-        println("postRepositoryAdapter::findById $post")
-        return post
+        return postJpaRepository.findByIdOrNull(id)?.let { postMapper.toDomain(it) }
     }
 
     override fun findAll(): List<Post> {
@@ -34,7 +32,6 @@ class PostRepositoryAdapter(
 
     @Transactional
     override fun deleteById(id: IdType) {
-        // postJpaRepository.deleteById(id)
         postJpaRepository.softDeleteById(id)
     }
 }

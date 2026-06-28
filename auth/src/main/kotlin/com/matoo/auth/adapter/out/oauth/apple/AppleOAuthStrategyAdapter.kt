@@ -3,7 +3,9 @@ package com.matoo.auth.adapter.out.oauth.apple
 import com.matoo.auth.application.port.out.OAuthStrategyPort
 import com.matoo.core.dto.OAuthProvider
 import com.matoo.auth.domain.model.OAuthUserInfo
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.server.ResponseStatusException
 
 @Component
 class AppleOAuthStrategyAdapter(
@@ -15,6 +17,9 @@ class AppleOAuthStrategyAdapter(
         code: String,
         codeVerifier: String,
     ): OAuthUserInfo {
-        TODO("Not yet implemented")
+        throw ResponseStatusException(
+            HttpStatus.NOT_IMPLEMENTED,
+            "Apple OAuth sign-in is not supported yet"
+        )
     }
 }

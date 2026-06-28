@@ -7,6 +7,9 @@ import com.matoo.board.application.port.out.PostQueryPort
 import com.matoo.board.domain.model.Post
 import com.matoo.core.support.exception.orNotFound
 import com.matoo.core.util.CoreUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -23,7 +26,9 @@ class PostService(
 
     ) : PostUseCase {
 
-    override fun create(
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
+    override suspend fun create(
         userId: String,
         title: String,
         content: String
@@ -36,23 +41,19 @@ class PostService(
             createdAt = Instant.now(),
         )
 
-        return postCommandPort.save(post)
+        return withContext(Dispatchers.IO) { postCommandPort.save(post) }
     }
 
-    override fun get(postId: String): Post {
-        return postQueryPort.findById(postId).orNotFound()
+    override suspend fun get(postId: String): Post {
+        return withContext(Dispatchers.IO) { postQueryPort.findById(postId) }.orNotFound()
     }
 
-    override fun getAll(): List<Post> {
-        return postQueryPort.findAll()
-    }
-
-    override fun update(
+    override suspend fun update(
         postId: String,
         userId: String,
         title: String,
         content: String
-    ): Post {
+    ): Post = withContext(Dispatchers.IO) {
         val post = postQueryPort.findById(postId).orNotFound()
         if (post.userId != userId) {
             throw ResponseStatusException(
@@ -66,11 +67,11 @@ class PostService(
             updatedAt = Instant.now()
         )
         val saved = postCommandPort.save(updated)
-        postCachePort.evict(postId)
-        return saved
+        evictQuietly(postId)
+        saved
     }
 
-    override fun delete(postId: String, userId: String) {
+    override suspend fun delete(postId: String, userId: String): Unit = withContext(Dispatchers.IO) {
         val post = postQueryPort.findById(postId).orNotFound()
         if (post.userId != userId) {
             throw ResponseStatusException(
@@ -79,6 +80,12 @@ class PostService(
             )
         }
         postCommandPort.deleteById(postId)
-        postCachePort.evict(postId)
+        evictQuietly(postId)
+    }
+
+    // 영속화는 이미 커밋됐으므로 캐시 무효화 실패가 요청을 실패시키면 안 된다(best-effort + 경고 로그).
+    private fun evictQuietly(postId: String) {
+        runCatching { postCachePort.evict(postId) }
+            .onFailure { logger.warn("post cache evict failed for postId={}", postId, it) }
     }
 }

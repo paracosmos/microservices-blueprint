@@ -14,6 +14,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.data.redis.connection.stream.Consumer
 import org.springframework.data.redis.connection.stream.MapRecord
@@ -28,6 +29,7 @@ abstract class AbstractRedisEventListener<T : EventDto>(
     private val streamReceiver: StreamReceiver<String, MapRecord<String, String, String>>,
     private val redisTemplate: ReactiveRedisTemplate<String, String>,
 ) : DisposableBean {
+    private val logger = LoggerFactory.getLogger(this::class.java)
     private val consumerScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     protected abstract val streamKeys: List<String>
     protected abstract val group: String
@@ -63,7 +65,11 @@ abstract class AbstractRedisEventListener<T : EventDto>(
             merge(*flows.toTypedArray()).collect { message ->
                 if (!currentCoroutineContext().isActive) return@collect
 
-                val streamKey = message.stream!!
+                val streamKey = message.stream
+                if (streamKey == null) {
+                    logger.warn("Skipping record with null stream key: {}", message.id)
+                    return@collect
+                }
                 val fields = message.value
                 val recordId = message.id
 
@@ -80,7 +86,7 @@ abstract class AbstractRedisEventListener<T : EventDto>(
                     }
                     // 실패면 ack 안 해서 pending에 남김(재처리/리트라이 정책 가능)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logger.error("Failed to handle stream message {} on {}", recordId, streamKey, e)
                     // 예외도 ack 안 하면 pending 유지
                 }
             }

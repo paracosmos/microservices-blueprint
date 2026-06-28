@@ -39,7 +39,6 @@ class UserPersistenceAdapter(
 
     @Transactional
     override fun deleteById(id: IdType) {
-//        userJpaRepository.deleteById(id)
         userJpaRepository.softDeleteById(id)
     }
 }

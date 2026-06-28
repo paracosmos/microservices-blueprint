@@ -9,6 +9,8 @@ import com.matoo.user.application.port.`in`.TermsUseCase
 import com.matoo.user.application.port.`in`.UserTermsUseCase
 import com.matoo.user.domain.model.terms.TermType
 import jakarta.validation.Valid
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -23,10 +25,10 @@ class TermsController(
      * 예: /api/v1/terms/latest?types=TOS,PRIVACY
      */
     @GetMapping("/latest")
-    fun latest(
+    suspend fun latest(
         @RequestParam types: List<TermType>
     ): ResponseEntity<Map<TermType, TermsResponse>> {
-        val res = termsUseCase.getLatestTerms(types)
+        val res = withContext(Dispatchers.IO) { termsUseCase.getLatestTerms(types) }
             .mapValues { (_, t) -> t.toResponse() }
         return ResponseEntity.ok(res)
     }
@@ -35,10 +37,11 @@ class TermsController(
      * 타입별 약관 히스토리
      */
     @GetMapping("/{type}")
-    fun history(
+    suspend fun history(
         @PathVariable type: TermType
     ): ResponseEntity<List<TermsResponse>> {
-        val res = termsUseCase.getTermsHistory(type).map { it.toResponse() }
+        val res = withContext(Dispatchers.IO) { termsUseCase.getTermsHistory(type) }
+            .map { it.toResponse() }
         return ResponseEntity.ok(res)
     }
 
@@ -46,12 +49,12 @@ class TermsController(
      * 사용자 약관 동의
      */
     @PostMapping("/agreements")
-    fun agree(
+    suspend fun agree(
         @RequestHeader(TraceConstants.HEADER_USER_ID) userId: String,
         @Valid @RequestBody req: AgreeTermsRequest
     ): ResponseEntity<Void> {
         val agreeTerms = req.agreeTerms.map { it.toCommand() }
-        userTermsUseCase.agree(userId, agreeTerms)
+        withContext(Dispatchers.IO) { userTermsUseCase.agree(userId, agreeTerms) }
         return ResponseEntity.noContent().build()
     }
 
@@ -59,12 +62,11 @@ class TermsController(
      * 사용자 동의 목록 조회
      */
     @GetMapping("/agreements")
-    fun agreements(
+    suspend fun agreements(
         @RequestHeader(TraceConstants.HEADER_USER_ID) userId: String,
     ): ResponseEntity<List<AgreeTermsResponse>> {
-        val body = userTermsUseCase.getAgreements(userId).map { model ->
-            AgreeTermsResponse.from(model)
-        }
+        val body = withContext(Dispatchers.IO) { userTermsUseCase.getAgreements(userId) }
+            .map { model -> AgreeTermsResponse.from(model) }
         return ResponseEntity.ok(body)
     }
 }

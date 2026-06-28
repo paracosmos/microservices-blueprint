@@ -6,6 +6,11 @@ spring:
   application:
     name: board
 
+cloud:
+  aws:
+    s3:
+      trust-all-certs: true
+
 eureka:
   instance:
     prefer-ip-address: true

@@ -3,6 +3,7 @@ package com.matoo.core.util
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import org.slf4j.LoggerFactory
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -12,6 +13,8 @@ import java.util.Base64
 import java.util.Date
 
 object JwtUtil {
+
+    private val logger = LoggerFactory.getLogger(JwtUtil::class.java)
 
     private val signatureAlgorithm = SignatureAlgorithm.ES256
 
@@ -85,7 +88,7 @@ object JwtUtil {
                 .parseClaimsJws(token)
             true
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.debug("JWT validation failed: {}", e.message)
             false
         }
     }

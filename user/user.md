@@ -87,6 +87,7 @@ com.matoo.user
 │   │       ├─ EmailSenderPort.kt
 │   │       ├─ PushSubscriptionCommandPort.kt
 │   │       ├─ PushSubscriptionQueryPort.kt
+│   │       ├─ TemplateRendererPort.kt
 │   │       ├─ TermsQueryPort.kt
 │   │       ├─ UserCommandPort.kt
 │   │       ├─ UserQueryPort.kt

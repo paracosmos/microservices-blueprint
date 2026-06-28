@@ -52,8 +52,11 @@ kotlin {
     jvmToolchain(21)
 }
 
+// core is a shared library consumed via `project(":core")`, so the plain `jar`
+// must stay enabled to expose its artifact to dependent modules. Only the
+// executable bootJar is disabled (core is not runnable on its own).
 tasks.jar {
-    enabled = false
+    enabled = true
 }
 
 tasks.bootJar {

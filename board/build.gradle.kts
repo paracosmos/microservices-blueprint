@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.kotlin.noarg)
     alias(libs.plugins.kotlin.jpa)
+    // kapt ships with the Kotlin plugin (already on classpath), so apply without a version.
+    kotlin("kapt")
 }
 
 description = "board"
@@ -29,6 +31,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.postgresql:postgresql")
 //    implementation("com.mysql:mysql-connector-j")
+
+    // querydsl (version managed by Spring Boot BOM)
+    implementation("com.querydsl:querydsl-jpa::jakarta")
+    kapt("com.querydsl:querydsl-apt::jakarta")
+    kapt("jakarta.annotation:jakarta.annotation-api")
+    kapt("jakarta.persistence:jakarta.persistence-api")
 
     // flyway
     implementation("org.flywaydb:flyway-core")
