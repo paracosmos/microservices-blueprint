@@ -35,6 +35,11 @@ spring-redis-reactive = { module = "org.springframework.boot:spring-boot-starter
 spring-eureka-server = { module = "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server", version.ref = "springCloudVersion" }
 spring-eureka-client = { module = "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client", version.ref = "springCloudVersion" }
 
+# test (versions managed by the Spring Boot BOM, except kotlin-test which follows the Kotlin version)
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
 # Libraries can be bundled together for easier import
 [bundles]
 kotlinxEcosystem = [
@@ -53,6 +58,10 @@ springFramework = [
     "spring-aop",
     "spring-actuator",
     "spring-cache",
+]
+test = [
+    "spring-boot-starter-test",
+    "kotlin-test-junit5",
 ]
 
 [plugins]

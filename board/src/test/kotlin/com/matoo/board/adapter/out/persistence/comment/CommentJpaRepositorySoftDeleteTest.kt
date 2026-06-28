@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.ActiveProfiles
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -16,20 +16,12 @@ import kotlin.test.assertNull
  * 과거 버그에서는 쿼리가 `where c.postId = :id` 로 되어 있어 commentId 를 넘겨도
  * 어떤 행과도 매칭되지 않아 댓글 삭제가 동작하지 않았다(영향 행 0). 이 테스트는
  * 그 회귀를 막는다.
+ *
+ * DB 설정은 공용 `test` 프로파일(application-test.yml)을 재사용한다.
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@TestPropertySource(
-    properties = [
-        "spring.flyway.enabled=false",
-        "spring.datasource.url=jdbc:h2:mem:board_soft_delete;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
-    ]
-)
+@ActiveProfiles("test")
 class CommentJpaRepositorySoftDeleteTest {
 
     @Autowired

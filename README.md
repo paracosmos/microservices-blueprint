@@ -13,7 +13,7 @@ up-to-date package tree in its own `*.md` (`auth/auth.md`, `user/user.md`, `boar
 | `core`    | `com.matoo.core`    | —    | Shared library (no bootJar): events, ports, JWT, tracing, exception handling, WebClient config |
 | `eureka`  | `com.matoo.eureka`  | 8761 | Service discovery (Netflix Eureka server) |
 | `gateway` | `com.matoo.gateway` | 8080 | Spring Cloud Gateway: routing, CORS, JWT auth |
-| `auth`    | `com.matoo.auth`    | 8081 | Login / OAuth (Google, Apple) / token issuance |
+| `auth`    | `com.matoo.auth`    | 8081 | Login / OAuth (Google; Apple not yet implemented) / token issuance |
 | `user`    | `com.matoo.user`    | 8082 | Users, terms, email (SMTP/SES), web push |
 | `board`   | `com.matoo.board`   | 8083 | Posts, comments, file uploads (S3/Supabase) |
 
