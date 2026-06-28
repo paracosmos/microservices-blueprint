@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+# Standalone server for tests: never register with or fetch from a peer.
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false

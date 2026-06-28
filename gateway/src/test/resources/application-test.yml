@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  cloud:
+    loadbalancer:
+      enabled: false
+
+# Do not contact the discovery server in tests.
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# Dummy public key: the JWT filter only parses it per-request (not at context load),
+# so the context starts without a real key. cors.origins / router.* are literals in application.yml.
+jwt:
+  access:
+    public-key: test
