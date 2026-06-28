@@ -1,0 +1,28 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  cloud:
+    loadbalancer:
+      enabled: false
+
+# Do not contact the discovery server in tests.
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# Dummy values: JWT keys are only parsed when a token is issued (not at context load),
+# and the OAuth client is lazy, so no real secrets/network are needed to load the context.
+jwt:
+  access:
+    private-key: test
+  refresh:
+    private-key: test
+
+google:
+  oauth:
+    client-id: test
+    client-secret: test

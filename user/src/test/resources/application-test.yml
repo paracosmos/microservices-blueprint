@@ -1,0 +1,67 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  # In-memory H2 (PostgreSQL mode so prod-like column types / @SQLRestriction behave).
+  datasource:
+    url: jdbc:h2:mem:user_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Schema comes from Hibernate ddl-auto; Flyway migrations are prod-only.
+  flyway:
+    enabled: false
+
+  # Redis bean is created but connects lazily; the stream consumer swallows connection errors.
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      username:
+      password:
+
+  # JavaMailSender is created lazily; dummy credentials so no real SMTP is contacted.
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: test
+    password: test
+
+  cloud:
+    loadbalancer:
+      enabled: false
+
+# Do not contact the discovery server in tests.
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# Throwaway P-256 VAPID keypair (test only). WebPushClientAdapter decodes these at startup,
+# so they must be valid base64url EC keys; they are disposable and grant no access.
+webpush:
+  vapid:
+    public-key: BHMQI56PrA4DNwscGmR_HRGgt48s1kY8pKb4iP5c6-lhf_M5ERrjt8b-BWls3f2gFQQ809EDmryypFbDxWdxr9s
+    private-key: fu8blTwb9IXCLLQIcP7DwjreEzO5aUQtY0TeIUtD0DI
+
+# Dummy values so the @ConfigurationProperties-backed email/SES beans instantiate (clients are lazy).
+email:
+  smtp:
+    from: test@example.com
+  ses:
+    from: test@example.com
+
+aws:
+  ses:
+    access-key: test
+    secret-key: test

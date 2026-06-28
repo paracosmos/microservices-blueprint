@@ -19,6 +19,10 @@ dependencies {
     implementation(libs.bundles.springFramework)
 
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 dependencyManagement {
