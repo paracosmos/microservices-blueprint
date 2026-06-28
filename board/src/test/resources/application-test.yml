@@ -1,0 +1,54 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  # In-memory H2 (PostgreSQL mode so TEXT columns / @SQLRestriction behave like prod).
+  datasource:
+    url: jdbc:h2:mem:board_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Schema comes from Hibernate ddl-auto; Flyway migrations are prod-only.
+  flyway:
+    enabled: false
+
+  # Redis bean is created but connects lazily; no running Redis needed for context load.
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      username:
+      password:
+
+  cloud:
+    loadbalancer:
+      enabled: false
+
+# Do not contact the discovery server in tests.
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# Dummy values so @Value-backed beans (S3/Supabase clients) instantiate without real secrets.
+# Clients are lazy, so no external calls happen during context load.
+cloud:
+  aws:
+    credentials:
+      access-key: test
+      secret-key: test
+    region:
+      static: us-east-1
+  supabase:
+    storage:
+      service-role-key: test
