@@ -44,10 +44,6 @@ class PostService(
         return withContext(Dispatchers.IO) { postCommandPort.save(post) }
     }
 
-    override suspend fun get(postId: String): Post {
-        return withContext(Dispatchers.IO) { postQueryPort.findById(postId) }.orNotFound()
-    }
-
     override suspend fun update(
         postId: String,
         userId: String,

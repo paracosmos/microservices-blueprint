@@ -15,7 +15,6 @@ import com.matoo.core.util.CoreUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.withContext
-import org.slf4j.LoggerFactory
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -29,8 +28,6 @@ class FileService(
     private val fileCommandPort: FileCommandPort,
     private val fileQueryPort: FileQueryPort
 ) : FileUseCase {
-
-    private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val storage = storagePort.provider()
 
@@ -95,15 +92,17 @@ class FileService(
     }
 
     override suspend fun delete(
-        userId: String, fileId: String, hard: Boolean?
+        userId: String, fileId: String
     ): Boolean {
         val file = withContext(Dispatchers.IO) { fileQueryPort.findById(fileId) } ?: return false
-        // DB 행을 먼저 soft-delete 해 깨진 링크 노출을 막는다.
+        // 소유자만 삭제 가능(IDOR 방지). 소유자 미지정(null) 파일은 허용.
+        requireStatus(file.userId == null || file.userId == userId, HttpStatus.FORBIDDEN)
+        // 스토리지를 먼저 삭제(S3 delete 는 멱등) → DB soft-delete 순서.
+        // 성공 응답은 실제 바이트 삭제를 보장한다(개인정보/보존 관점).
+        // 스토리지 삭제 실패 시 예외로 요청이 실패하고 아무것도 커밋되지 않아 재시도 안전.
+        // DB 삭제가 그 뒤 실패하면 행이 남아 재시도 가능하며, 재시도 시 스토리지 삭제는 멱등 no-op.
+        storagePort.delete(file.storageKey)
         withContext(Dispatchers.IO) { fileCommandPort.deleteById(fileId) }
-        // 스토리지 삭제는 best-effort: 실패해도 요청을 실패시키지 않고(이미 행은 삭제됨, 재시도 시 false 만 반환)
-        // 고아 객체로 로그만 남겨 별도 정리(GC) 대상으로 둔다.
-        runCatching { storagePort.delete(file.storageKey) }
-            .onFailure { logger.warn("orphaned storage object after delete: key={}", file.storageKey, it) }
         return true
     }
 

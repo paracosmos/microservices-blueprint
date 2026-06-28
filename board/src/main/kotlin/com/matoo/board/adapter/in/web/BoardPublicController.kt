@@ -28,18 +28,19 @@ class BoardPublicController(
         @RequestParam(defaultValue = "20") size: Int,
     ): ResponseEntity<List<PostSummaryResponse>> {
         val limit = size.coerceIn(1, MAX_PAGE_SIZE)
+        // offset 은 Long 으로 끝까지 전달(큰 page 값에서 Int 오버플로로 음수가 되는 것을 방지).
         val offset = page.coerceAtLeast(0).toLong() * limit
-        val body = boardQueryUseCase.getPostList(limit, offset.toInt())
+        val body = boardQueryUseCase.getPostList(limit, offset)
             .map(PostSummaryResponse::from)
         return ResponseEntity.ok(body)
     }
 
-    // 상세: 게시글 + 댓글
+    // 상세: 게시글 + 댓글 (작성자 내부 식별자 미노출)
     @GetMapping("/{postId}")
     suspend fun getPost(
         @PathVariable postId: String
     ): ResponseEntity<PostCommentResponse> {
         val result = boardQueryUseCase.getPostWithComments(postId)
-        return ResponseEntity.ok(PostCommentResponse(result.post, result.comments))
+        return ResponseEntity.ok(PostCommentResponse.from(result))
     }
 }

@@ -31,7 +31,7 @@ class PostQueryDslAdapter(
      * 페이지네이션(limit/offset) 필수 — 공개 엔드포인트에서 전체 테이블 적재를 막는다.
      * 삭제된 댓글은 ON 절의 deleted_at IS NULL 로 제외(LEFT JOIN 유지 → 댓글 없는 글도 count 0 으로 포함).
      */
-    override fun findSummaries(limit: Int, offset: Int): List<PostSummary> =
+    override fun findSummaries(limit: Int, offset: Long): List<PostSummary> =
         queryFactory
             .select(
                 Projections.constructor(
@@ -49,7 +49,7 @@ class PostQueryDslAdapter(
             .where(post.deletedAt.isNull)
             .groupBy(post.postId, post.title, post.createdAt)
             .orderBy(post.createdAt.desc(), post.postId.desc())
-            .offset(offset.toLong())
+            .offset(offset)
             .limit(limit.toLong())
             .fetch()
 

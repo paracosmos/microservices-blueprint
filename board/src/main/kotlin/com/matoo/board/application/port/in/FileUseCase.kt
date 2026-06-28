@@ -14,8 +14,7 @@ interface FileUseCase {
 
     suspend fun delete(
         userId: String,
-        fileId: String,
-        hard: Boolean? = null
+        fileId: String
     ): Boolean
 
     suspend fun presign(
