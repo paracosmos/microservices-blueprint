@@ -16,7 +16,6 @@ com.matoo.board
 │   │           └─ PostSummaryResponse.kt
 │   │
 │   └─ out
-│       ├─ PostAdapter.kt
 │       ├─ client
 │       │   ├─ S3StorageClient.kt
 │       │   ├─ SupabaseStorageClient.kt
@@ -27,10 +26,6 @@ com.matoo.board
 │       │   └─ redis
 │       │       └─ RedisEventPublisher.kt
 │       ├─ persistence
-│       │   ├─ cache
-│       │   │   ├─ PostCacheAdapter.kt
-│       │   │   ├─ PostLocalCacheAdapter.kt
-│       │   │   └─ PostRedisAdapter.kt
 │       │   ├─ comment
 │       │   │   ├─ CommentEntity.kt
 │       │   │   ├─ CommentJpaRepository.kt
@@ -70,7 +65,6 @@ com.matoo.board
 │   │   └─ out
 │   │       ├─ CommentCommandPort.kt
 │   │       ├─ CommentQueryPort.kt
-│   │       ├─ PostCachePort.kt
 │   │       ├─ PostCommandPort.kt
 │   │       ├─ PostQueryPort.kt
 │   │       ├─ PostReadPort.kt
@@ -98,9 +92,6 @@ com.matoo.board
 │   └─ service
 │
 └─ infrastructure
-├─ cache
-│   ├─ CacheConfig.kt
-│   └─ RedisConfig.kt
 ├─ config
 │   ├─ BoardModuleConfig.kt
 │   └─ QueryDslConfig.kt

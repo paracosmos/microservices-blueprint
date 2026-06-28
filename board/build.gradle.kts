@@ -43,9 +43,6 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
 //    implementation("org.flywaydb:flyway-mysql")
 
-    // cache
-    implementation("com.github.ben-manes.caffeine:caffeine")
-
     // aws
     implementation("software.amazon.awssdk:s3")
     implementation("software.amazon.awssdk:apache-client")
